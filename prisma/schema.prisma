@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id   Int        @id @default(autoincrement())
+  uid  String     @unique
+  displayName String?
+  memo BookMemo[]
+}
+
+model BookMemo {
+  id         Int      @id @default(autoincrement())
+  title      String
+  isbn       String
+  isbn13     String?
+  createdAt  DateTime @default(now())
+  state      String
+  score      Int
+  start      String?
+  end        String?
+  field      String?
+  role       Role     @default(USER)
+  auth       String
+  cover      String?
+  userId     String
+  fieldcount Int?
+  author     User     @relation(fields: [userId], references: [uid])
+
+  @@index([userId], map: "BookMemo_userId_fkey")
+}
+
+model MemoList {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  isbn      String
+  isbn13    String?
+  content   String?  @db.MediumText
+  createdAt DateTime @default(now())
+  keywords  String?
+  role      Role     @default(USER)
+}
+
+model Comment {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  isbn        String
+  isbn13      String?
+  createdAt   DateTime @default(now())
+  content     String?  @db.MediumText
+  role        Role     @default(USER)
+  displayName String
+  like        Int      @default(0)
+  title       String
+}
+
+model Notification {
+    id          Int      @id @default(autoincrement())
+    userId      String
+    writerId    String
+    contentId   Int
+    replyId     Int?
+
+    type    String
+    isChecked Int
+    createdAt DateTime @default(now()) 
+}
+enum Role {
+  USER
+  ADMIN
+}
